@@ -57,7 +57,7 @@
             </div>
             
             <!-- Link to Game Details -->
-            <%= link_to "View Details", game_path(game['gamePk']), class: "game-link" %>
+            <%= link_to "View Details", game_path(game['gamePk'], date: @selected_date), class: "game-link" %>
           </div>
 
           <!-- User Thought Entry Section -->
