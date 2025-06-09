@@ -1,24 +1,40 @@
-# README
+# OnBaseball
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Ruby on Rails application for baseball fans to log and share their thoughts on MLB games.
 
-Things you may want to cover:
+## Features
 
-* Ruby version
+- View live MLB games with real-time scores and game status
+- Log personal thoughts and observations about games
+- View other users' thoughts and engage with the community
+- Like/dislike system for community engagement
+- User profiles and search functionality
+- Historical game viewing with date navigation
+- Multiple entries per game support
 
-* System dependencies
+## Technology Stack
 
-* Configuration
+- Ruby 3.2.0
+- Rails 8.0.2
+- MongoDB with Mongoid ORM
+- Devise for authentication
+- MLB Stats API for live game data
+- HTTParty for API integration
 
-* Database creation
+## Setup
 
-* Database initialization
+1. Clone the repository
+2. Install dependencies: `bundle install`
+3. Start MongoDB service: `brew services start mongodb/brew/mongodb-community`
+4. Start the Rails server: `rails server`
+5. Visit `http://localhost:3000`
 
-* How to run the test suite
+## Requirements
 
-* Services (job queues, cache servers, search engines, etc.)
+- Ruby 3.2.0+
+- MongoDB
+- Internet connection for MLB API data
 
-* Deployment instructions
+## Development
 
-* ...
+The application fetches live MLB game data and allows authenticated users to log thoughts, view community discussions, and engage with other baseball fans' perspectives on games.
