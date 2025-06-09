@@ -1,0 +1,337 @@
+<div class="game-detail-container">
+  <div class="game-header">
+    <%= link_to "← Back to Games", root_path(date: @game_date), class: "back-link" %>
+    
+    <h1>
+      <%= @game.dig('teams', 'away', 'team', 'name') %> @ 
+      <%= @game.dig('teams', 'home', 'team', 'name') %>
+    </h1>
+    
+    <div class="game-info">
+      <p><strong>Date:</strong> <%= @game_date.strftime('%A, %B %d, %Y') %></p>
+      
+      <% if @game['status']['statusCode'] == 'S' || @game['status']['statusCode'] == 'P' %>
+        <!-- Upcoming game -->
+        <p><strong>Start Time:</strong> <%= DateTime.parse(@game['gameDate']).in_time_zone.strftime('%l:%M %p') %></p>
+        <% if @game.dig('teams', 'away', 'probablePitcher', 'fullName') %>
+          <p><strong>Pitching Matchup:</strong> 
+            <%= @game.dig('teams', 'away', 'probablePitcher', 'fullName') %> vs 
+            <%= @game.dig('teams', 'home', 'probablePitcher', 'fullName') %>
+          </p>
+        <% end %>
+        
+      <% elsif @game['status']['statusCode'] == 'I' %>
+        <!-- Live game -->
+        <p><strong>Status:</strong> 
+          <span class="live-status">
+            <%= @game.dig('linescore', 'inningHalf')&.capitalize %> 
+            <%= @game.dig('linescore', 'currentInningOrdinal') %> - 
+            <%= @game.dig('teams', 'away', 'team', 'abbreviation') %> 
+            <%= @game.dig('linescore', 'teams', 'away', 'runs') %>, 
+            <%= @game.dig('teams', 'home', 'team', 'abbreviation') %> 
+            <%= @game.dig('linescore', 'teams', 'home', 'runs') %>
+          </span>
+        </p>
+        
+      <% elsif @game['status']['statusCode'] == 'F' %>
+        <!-- Finished game -->
+        <p><strong>Final Score:</strong> 
+          <%= @game.dig('teams', 'away', 'team', 'abbreviation') %> 
+          <%= @game.dig('teams', 'away', 'score') %>, 
+          <%= @game.dig('teams', 'home', 'team', 'abbreviation') %> 
+          <%= @game.dig('teams', 'home', 'score') %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="thoughts-section">
+    <% if user_signed_in? %>
+      <!-- New thought form -->
+      <div class="new-thought-form">
+        <h3>Add Your Thought</h3>
+        <%= form_with(model: @new_game_thought, local: true) do |form| %>
+          <%= form.hidden_field :game_id, value: @game['gamePk'] %>
+          <%= form.hidden_field :game_date, value: @game_date %>
+          <%= form.hidden_field :team_home, value: @game.dig('teams', 'home', 'team', 'name') %>
+          <%= form.hidden_field :team_away, value: @game.dig('teams', 'away', 'team', 'name') %>
+          
+          <div class="form-group">
+            <%= form.text_area :content, placeholder: "What do you think about this game?", 
+                              maxlength: 500, rows: 3, class: "thought-textarea" %>
+          </div>
+          
+          <div class="form-actions">
+            <%= form.submit "Post Thought", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- User's previous thoughts -->
+      <% if @user_thoughts.any? %>
+        <div class="user-thoughts">
+          <h3>Your Previous Thoughts</h3>
+          <% @user_thoughts.each do |thought| %>
+            <div class="thought-card user-thought">
+              <div class="thought-header">
+                <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+                <div class="thought-actions">
+                  <%= link_to "Delete", game_thought_path(thought), 
+                             method: :delete, 
+                             data: { confirm: "Are you sure?" },
+                             class: "delete-link" %>
+                </div>
+              </div>
+              <div class="thought-content"><%= thought.content %></div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="login-prompt">
+        <p><%= link_to "Sign in", new_user_session_path %> to add your thoughts about this game.</p>
+      </div>
+    <% end %>
+
+    <!-- Other users' thoughts -->
+    <% if @other_thoughts.any? %>
+      <div class="other-thoughts">
+        <h3>What Others Are Saying</h3>
+        <% @other_thoughts.each do |thought| %>
+          <div class="thought-card other-thought">
+            <div class="thought-header">
+              <span class="username">
+                <%= link_to "@#{thought.user.email.split('@').first}", user_path(thought.user) %>
+              </span>
+              <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+              
+              <% if user_signed_in? %>
+                <div class="voting-buttons">
+                  <%= button_to like_game_thought_path(thought), method: :patch, 
+                                class: "vote-btn like-btn #{'active' if thought.liked_by?(current_user)}", 
+                                local: true do %>
+                    👍 <%= thought.likes_count %>
+                  <% end %>
+                  <%= button_to dislike_game_thought_path(thought), method: :patch, 
+                                class: "vote-btn dislike-btn #{'active' if thought.disliked_by?(current_user)}", 
+                                local: true do %>
+                    👎 <%= thought.dislikes_count %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="vote-display">
+                  👍 <%= thought.likes_count %> 👎 <%= thought.dislikes_count %>
+                </div>
+              <% end %>
+            </div>
+            <div class="thought-content"><%= thought.content %></div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="no-thoughts">
+        <p>No one else has shared thoughts about this game yet. Be the first!</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.game-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.game-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.game-header h1 {
+  color: #333;
+  margin: 10px 0;
+}
+
+.game-info p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.live-status {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.thoughts-section {
+  space-y: 30px;
+}
+
+.new-thought-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.thought-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.thought-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.user-thought {
+  background-color: #e7f3ff;
+  border-color: #007bff;
+}
+
+.other-thought {
+  background-color: #fff;
+}
+
+.thought-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.username {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.username a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.username a:hover {
+  text-decoration: underline;
+}
+
+.delete-link {
+  color: #dc3545;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.delete-link:hover {
+  text-decoration: underline;
+}
+
+.voting-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.vote-form {
+  display: inline;
+}
+
+.vote-btn {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.like-btn {
+  color: #28a745;
+}
+
+.like-btn.active {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.dislike-btn {
+  color: #dc3545;
+}
+
+.dislike-btn.active {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.vote-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.vote-btn.active:hover {
+  opacity: 0.8;
+}
+
+.thought-content {
+  line-height: 1.4;
+  color: #333;
+}
+
+.login-prompt, .no-thoughts {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+.user-thoughts, .other-thoughts {
+  margin-bottom: 30px;
+}
+
+h3 {
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+}
+</style>

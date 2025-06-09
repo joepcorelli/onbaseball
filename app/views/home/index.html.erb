@@ -1,0 +1,135 @@
+<div class="container">
+  <div class="header-section">
+    <h1>MLB Games</h1>
+    
+    <!-- Date Picker -->
+    <div class="date-picker">
+      <%= form_with url: root_path, method: :get, local: true, class: "date-form" do |form| %>
+        <%= form.date_field :date, value: @selected_date.strftime('%Y-%m-%d'), 
+                           onchange: "this.form.submit();", class: "date-input" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @games.any? %>
+    <div class="games-container">
+      <% @games.each do |game| %>
+        <div class="game-card">
+          <!-- Game Info -->
+          <div class="game-info">
+            <div class="teams">
+              <span class="away-team"><%= game.dig('teams', 'away', 'team', 'name') %></span>
+              <span class="vs">@</span>
+              <span class="home-team"><%= game.dig('teams', 'home', 'team', 'name') %></span>
+            </div>
+            
+            <div class="game-details">
+              <div class="time-status">
+                <% if game['status']['statusCode'] == 'F' %>
+                  <span class="final">Final: 
+                    <%= game.dig('teams', 'away', 'score') || 0 %>-<%= game.dig('teams', 'home', 'score') || 0 %>
+                  </span>
+                <% elsif game['status']['statusCode'] == 'I' %>
+                  <span class="live">
+                    <%= game.dig('linescore', 'inningHalf')&.capitalize %> 
+                    <%= game.dig('linescore', 'currentInningOrdinal') %>: 
+                    <%= game.dig('teams', 'away', 'score') || 0 %>-<%= game.dig('teams', 'home', 'score') || 0 %>
+                  </span>
+                <% else %>
+                  <span class="upcoming">
+                    <%= DateTime.parse(game['gameDate']).in_time_zone.strftime('%l:%M %p') %>
+                  </span>
+                <% end %>
+              </div>
+              
+              <!-- Pitching Matchup -->
+              <% if game.dig('teams', 'away', 'probablePitcher') || game.dig('teams', 'home', 'probablePitcher') %>
+                <div class="pitching-matchup">
+                  <span class="pitcher">
+                    <%= game.dig('teams', 'away', 'probablePitcher', 'fullName') || 'TBD' %>
+                  </span>
+                  <span class="vs">vs</span>
+                  <span class="pitcher">
+                    <%= game.dig('teams', 'home', 'probablePitcher', 'fullName') || 'TBD' %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Link to Game Details -->
+            <%= link_to "View Details", game_path(game['gamePk']), class: "game-link" %>
+          </div>
+
+          <!-- User Thought Entry Section -->
+          <% if user_signed_in? %>
+            <div class="thought-section">
+              <!-- Existing Thoughts Indicator -->
+              <% user_thoughts_for_game = @user_game_thoughts&.dig(game['gamePk'].to_s) %>
+              <% if user_thoughts_for_game&.any? %>
+                <div class="existing-thoughts">
+                  <span class="indicator">✓ You have <%= pluralize(user_thoughts_for_game.count, 'thought') %> on this game</span>
+                </div>
+              <% end %>
+              
+              <!-- New Thought Form -->
+              <%= form_with model: GameThought.new, local: true, class: "thought-form" do |form| %>
+                <%= form.hidden_field :game_id, value: game['gamePk'] %>
+                <%= form.hidden_field :game_date, value: @selected_date %>
+                <%= form.hidden_field :team_home, value: game.dig('teams', 'home', 'team', 'name') %>
+                <%= form.hidden_field :team_away, value: game.dig('teams', 'away', 'team', 'name') %>
+                
+                <div class="thought-input">
+                  <%= form.text_area :content, placeholder: "Share your thoughts on this game...", 
+                                     rows: 2, maxlength: 500, class: "thought-textarea" %>
+                </div>
+                
+                <div class="thought-submit">
+                  <%= form.submit "Add Thought", class: "submit-btn" %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="login-prompt">
+              <%= link_to "Login to share your thoughts", new_user_session_path, class: "login-link" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="no-games">
+      <p>No games scheduled for <%= @selected_date.strftime('%B %d, %Y') %></p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .date-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+  .games-container { display: grid; gap: 20px; }
+  .game-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: white; }
+  .game-info { margin-bottom: 15px; }
+  .teams { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+  .home-team { color: #2c5aa0; }
+  .away-team { color: #333; }
+  .vs { margin: 0 10px; color: #666; }
+  .game-details { font-size: 14px; color: #666; margin-bottom: 10px; }
+  .pitching-matchup { margin-top: 5px; }
+  .pitcher { font-weight: 500; }
+  .final { color: #d32f2f; font-weight: bold; }
+  .live { color: #2e7d32; font-weight: bold; }
+  .upcoming { color: #1976d2; font-weight: bold; }
+  .game-link { color: #1976d2; text-decoration: none; font-size: 14px; }
+  .game-link:hover { text-decoration: underline; }
+  .thought-section { border-top: 1px solid #eee; padding-top: 15px; }
+  .existing-thoughts { margin-bottom: 10px; }
+  .indicator { background: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+  .thought-form { display: flex; flex-direction: column; gap: 10px; }
+  .thought-textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; }
+  .submit-btn { background: #1976d2; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+  .submit-btn:hover { background: #1565c0; }
+  .login-prompt { text-align: center; padding: 10px; }
+  .login-link { color: #1976d2; text-decoration: none; }
+  .no-games { text-align: center; padding: 40px; color: #666; }
+</style>

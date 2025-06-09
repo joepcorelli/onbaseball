@@ -1,0 +1,171 @@
+<div class="user-profile-container">
+  <div class="profile-header">
+    <%= link_to "← Back to Games", root_path, class: "back-link" %>
+    
+    <h1>@<%= @user.email.split('@').first %>'s Profile</h1>
+    <p class="member-since">Member since <%= @user.created_at.strftime('%B %Y') %></p>
+    <p class="total-thoughts">Total thoughts: <%= @user.game_thoughts.count %></p>
+  </div>
+
+  <div class="thoughts-section">
+    <% if @user_thoughts.any? %>
+      <h2>Recent Thoughts</h2>
+      
+      <% @user_thoughts.each do |thought| %>
+        <div class="thought-card">
+          <div class="thought-header">
+            <div class="game-info">
+              <strong>
+                <%= thought.team_away %> @ <%= thought.team_home %>
+              </strong>
+              <span class="game-date">on <%= thought.game_date.strftime('%B %d, %Y') %></span>
+            </div>
+            <div class="thought-meta">
+              <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+              <div class="vote-counts">
+                👍 <%= thought.likes_count %> 👎 <%= thought.dislikes_count %>
+              </div>
+            </div>
+          </div>
+          
+          <div class="thought-content">
+            <%= thought.content %>
+          </div>
+          
+          <div class="thought-footer">
+            <%= link_to "View Game", game_path(thought.game_id, date: thought.game_date), 
+                       class: "game-link" %>
+          </div>
+        </div>
+      <% end %>
+      
+    <% else %>
+      <div class="no-thoughts">
+        <p>This user hasn't shared any thoughts yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.user-profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.profile-header {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.profile-header h1 {
+  color: #333;
+  margin: 10px 0;
+  font-size: 2.5em;
+}
+
+.member-since, .total-thoughts {
+  color: #666;
+  margin: 5px 0;
+}
+
+.total-thoughts {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #007bff;
+}
+
+.thoughts-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+}
+
+.thought-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.thought-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.game-info {
+  flex: 1;
+}
+
+.game-info strong {
+  color: #333;
+  font-size: 1.1em;
+}
+
+.game-date {
+  color: #666;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
+
+.thought-meta {
+  text-align: right;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.vote-counts {
+  margin-top: 5px;
+  font-size: 0.8em;
+}
+
+.thought-content {
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.thought-footer {
+  text-align: right;
+}
+
+.game-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.game-link:hover {
+  text-decoration: underline;
+}
+
+.no-thoughts {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+</style>
