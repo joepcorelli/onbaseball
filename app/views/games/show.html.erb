@@ -76,10 +76,11 @@
               <div class="thought-header">
                 <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
                 <div class="thought-actions">
-                  <%= link_to "Delete", game_thought_path(thought), 
-                             method: :delete, 
-                             data: { confirm: "Are you sure?" },
-                             class: "delete-link" %>
+                  <%= button_to "Delete", game_thought_path(thought), 
+                               method: :delete, 
+                               data: { confirm: "Are you sure?" },
+                               class: "delete-btn",
+                               form: { style: "display: inline;" } %>
                 </div>
               </div>
               <div class="thought-content"><%= thought.content %></div>
@@ -259,6 +260,21 @@
 }
 
 .delete-link:hover {
+  text-decoration: underline;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  text-decoration: none;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.delete-btn:hover {
   text-decoration: underline;
 }
 
