@@ -102,7 +102,7 @@
           <div class="thought-card other-thought">
             <div class="thought-header">
               <span class="username">
-                <%= link_to "@#{thought.user.email.split('@').first}", user_path(thought.user) %>
+                <%= link_to "@#{thought.user.display_name}", user_path(thought.user) %>
               </span>
               <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
               
