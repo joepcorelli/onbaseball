@@ -1,4 +1,6 @@
 class HomeController < ApplicationController
+  # No authentication required for viewing games
+
   def index
     @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     games = MlbApiService.games_for_date(@selected_date)

@@ -1,4 +1,6 @@
 class GamesController < ApplicationController
+  # No authentication required for viewing game details
+  
   def show
     @game_id = params[:id]
     @game_date = params[:date].present? ? Date.parse(params[:date]) : Date.current
