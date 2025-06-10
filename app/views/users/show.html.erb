@@ -1,171 +1,210 @@
-<div class="user-profile-container">
+<div class="profile-container">
   <div class="profile-header">
-    <%= link_to "← Back to Games", root_path, class: "back-link" %>
-    
-    <h1>@<%= @user.email.split('@').first %>'s Profile</h1>
-    <p class="member-since">Member since <%= @user.created_at.strftime('%B %Y') %></p>
-    <p class="total-thoughts">Total thoughts: <%= @user.game_thoughts.count %></p>
+    <h1><%= @user.email.split('@').first.capitalize %>'s Profile</h1>
+    <div class="profile-stats">
+      <div class="stat">
+        <strong><%= @total_thoughts %></strong>
+        <span>Total Thoughts</span>
+      </div>
+      <div class="stat">
+        <strong><%= @total_likes %></strong>
+        <span>Total Likes</span>
+      </div>
+      <div class="stat">
+        <strong><%= @member_since.strftime("%B %Y") %></strong>
+        <span>Member Since</span>
+      </div>
+    </div>
   </div>
 
   <div class="thoughts-section">
-    <% if @user_thoughts.any? %>
-      <h2>Recent Thoughts</h2>
-      
-      <% @user_thoughts.each do |thought| %>
-        <div class="thought-card">
-          <div class="thought-header">
-            <div class="game-info">
-              <strong>
-                <%= thought.team_away %> @ <%= thought.team_home %>
-              </strong>
-              <span class="game-date">on <%= thought.game_date.strftime('%B %d, %Y') %></span>
+    <h2>My Game Thoughts</h2>
+    <% if @game_thoughts.any? %>
+      <div class="thoughts-list">
+        <% @game_thoughts.each do |thought| %>
+          <div class="thought-card">
+            <div class="thought-header">
+              <h3>
+                <%= link_to game_path(thought.game_id, date: thought.game_date), class: "game-link" do %>
+                  <%= thought.team_away %> @ <%= thought.team_home %>
+                <% end %>
+              </h3>
+              <span class="thought-date"><%= thought.game_date.strftime("%B %d, %Y") %></span>
             </div>
-            <div class="thought-meta">
-              <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
-              <div class="vote-counts">
-                👍 <%= thought.likes_count %> 👎 <%= thought.dislikes_count %>
-              </div>
+            <div class="thought-content">
+              <p><%= thought.content %></p>
+            </div>
+            <div class="thought-footer">
+              <span class="thought-stats">
+                👍 <%= thought.likes_count %> | 👎 <%= thought.dislikes_count %>
+              </span>
+              <span class="thought-time">
+                Posted <%= time_ago_in_words(thought.created_at) %> ago
+              </span>
             </div>
           </div>
-          
-          <div class="thought-content">
-            <%= thought.content %>
-          </div>
-          
-          <div class="thought-footer">
-            <%= link_to "View Game", game_path(thought.game_id, date: thought.game_date), 
-                       class: "game-link" %>
-          </div>
-        </div>
-      <% end %>
-      
+        <% end %>
+      </div>
     <% else %>
       <div class="no-thoughts">
-        <p>This user hasn't shared any thoughts yet.</p>
+        <p>You haven't posted any game thoughts yet.</p>
+        <%= link_to "Start sharing your thoughts!", root_path, class: "cta-link" %>
       </div>
     <% end %>
+  </div>
+
+  <div class="profile-actions">
+    <%= link_to "← Back to Games", root_path, class: "back-link" %>
   </div>
 </div>
 
 <style>
-.user-profile-container {
+.profile-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.back-link {
-  color: #007bff;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.back-link:hover {
-  text-decoration: underline;
-}
-
 .profile-header {
   background: #f8f9fa;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 30px;
   text-align: center;
 }
 
 .profile-header h1 {
+  margin: 0 0 20px 0;
   color: #333;
-  margin: 10px 0;
-  font-size: 2.5em;
 }
 
-.member-since, .total-thoughts {
-  color: #666;
-  margin: 5px 0;
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
 }
 
-.total-thoughts {
-  font-weight: bold;
-  font-size: 1.1em;
+.stat {
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 24px;
   color: #007bff;
 }
 
+.stat span {
+  font-size: 14px;
+  color: #666;
+}
+
 .thoughts-section h2 {
-  color: #333;
   margin-bottom: 20px;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 5px;
+  color: #333;
 }
 
 .thought-card {
+  background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 20px;
-  background-color: #fff;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .thought-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.game-info {
-  flex: 1;
-}
-
-.game-info strong {
-  color: #333;
-  font-size: 1.1em;
-}
-
-.game-date {
-  color: #666;
-  font-size: 0.9em;
-  margin-left: 10px;
-}
-
-.thought-meta {
-  text-align: right;
-  font-size: 0.9em;
-  color: #666;
-}
-
-.vote-counts {
-  margin-top: 5px;
-  font-size: 0.8em;
-}
-
-.thought-content {
-  line-height: 1.5;
-  color: #333;
-  margin-bottom: 15px;
-  padding: 10px 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-
-.thought-footer {
-  text-align: right;
+.thought-header h3 {
+  margin: 0;
 }
 
 .game-link {
   color: #007bff;
   text-decoration: none;
-  font-size: 0.9em;
+  font-size: 18px;
 }
 
 .game-link:hover {
   text-decoration: underline;
 }
 
+.thought-date {
+  color: #666;
+  font-size: 14px;
+}
+
+.thought-content {
+  margin: 15px 0;
+}
+
+.thought-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.thought-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
 .no-thoughts {
   text-align: center;
-  color: #666;
-  font-style: italic;
-  padding: 60px 20px;
+  padding: 40px;
   background: #f8f9fa;
   border-radius: 8px;
+}
+
+.cta-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.cta-link:hover {
+  text-decoration: underline;
+}
+
+.profile-actions {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .profile-stats {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .thought-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .thought-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
 }
 </style>

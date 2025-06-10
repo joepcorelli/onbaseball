@@ -10,6 +10,18 @@
 
     <%= yield :head %>
 
+    <style>
+      .profile-link {
+        color: #007bff;
+        text-decoration: none;
+        margin-right: 15px;
+      }
+
+      .profile-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
@@ -34,6 +46,7 @@
       <strong>OnBaseball</strong>
       <% if user_signed_in? %>
         | Welcome, <%= current_user.email %>! 
+        <%= link_to "My Profile", user_path(current_user), class: "profile-link" %>
         <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete, confirm: "Are you sure?" } %>
       <% else %>
         | <%= link_to "Sign In", new_user_session_path %> 
