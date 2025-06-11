@@ -18,13 +18,8 @@ class User
   has_many :votes, dependent: :destroy
 
   # Follow relationships
-  has_many :active_follows, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy
-  has_many :passive_follows, class_name: 'Follow', foreign_key: 'followed_id', dependent: :destroy
-
-  # Users this user is following
-  has_many :following, through: :active_follows, source: :followed
-  # Users following this user
-  has_many :followers, through: :passive_follows, source: :follower
+  has_many :active_follows, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy, inverse_of: :follower
+  has_many :passive_follows, class_name: 'Follow', foreign_key: 'followed_id', dependent: :destroy, inverse_of: :followed
 
   # Validations for display name
   validates :display_name, presence: true, length: { minimum: 2, maximum: 30 }
@@ -37,7 +32,17 @@ class User
   # Set default display name before validation on create
   before_validation :set_default_display_name, on: :create
 
-  # Helper methods for follow functionality
+  # Helper methods for follow functionality - REORDERED TO FIX CIRCULAR REFERENCE
+  # Get users this user is following (MOVED UP)
+  def following
+    User.in(id: active_follows.pluck(:followed_id))
+  end
+
+  # Get users following this user (MOVED UP)
+  def followers
+    User.in(id: passive_follows.pluck(:follower_id))
+  end
+
   def follow(user)
     return false if self == user || following?(user)
     active_follows.create(followed: user)
@@ -48,7 +53,7 @@ class User
   end
 
   def following?(user)
-    following.include?(user)
+    following.include?(user)  # Now this works because 'following' method is defined above
   end
 
   def followers_count

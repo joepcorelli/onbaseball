@@ -2,8 +2,8 @@ class Follow
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  belongs_to :follower, class_name: 'User'
-  belongs_to :followed, class_name: 'User'
+  belongs_to :follower, class_name: 'User', inverse_of: :active_follows
+  belongs_to :followed, class_name: 'User', inverse_of: :passive_follows
   
   # Ensure a user can't follow the same person twice
   validates :follower_id, uniqueness: { scope: :followed_id }
