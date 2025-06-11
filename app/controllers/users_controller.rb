@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!, only: [:search]
-  before_action :set_user, only: [:show]
+  before_action :set_user, only: [:show, :following, :followers]
   
   def show
     @user = User.find(params[:id])
@@ -18,6 +18,14 @@ class UsersController < ApplicationController
     
     # Group thoughts by game for better display
     @thoughts_by_game = @user_thoughts.group_by(&:game_id)
+  end
+
+  def following
+    @following_users = @user.following.order_by(display_name: :asc)
+  end
+
+  def followers
+    @follower_users = @user.followers.order_by(display_name: :asc)
   end
 
   def search

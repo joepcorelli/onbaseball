@@ -2,9 +2,27 @@
   <div class="profile-header">
     <h1><%= @user.display_name %>'s Profile</h1>
     <p class="email-subtitle"><%= @user.email %></p>
+    
+    <!-- Follow/Unfollow button for other users -->
+    <% if user_signed_in? && current_user != @user %>
+      <div class="follow-actions">
+        <% if current_user.following?(@user) %>
+          <%= form_with url: user_follow_path(@user, current_user.active_follows.where(followed: @user).first), 
+                        method: :delete, local: true, class: "follow-form" do |form| %>
+            <%= form.submit "Unfollow", class: "unfollow-btn" %>
+          <% end %>
+        <% else %>
+          <%= form_with url: user_follows_path(@user), method: :post, local: true, class: "follow-form" do |form| %>
+            <%= form.submit "Follow", class: "follow-btn" %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+    
     <% if current_user == @user %>
       <%= link_to "Edit Profile", edit_user_registration_path, class: "edit-profile-btn" %>
     <% end %>
+    
     <div class="profile-stats">
       <div class="stat">
         <strong><%= @total_thoughts %></strong>
@@ -18,11 +36,23 @@
         <strong><%= @member_since.strftime("%B %Y") %></strong>
         <span>Member Since</span>
       </div>
+      <div class="stat">
+        <%= link_to followers_user_path(@user), class: "stat-link" do %>
+          <strong><%= @user.followers_count %></strong>
+          <span>Followers</span>
+        <% end %>
+      </div>
+      <div class="stat">
+        <%= link_to following_user_path(@user), class: "stat-link" do %>
+          <strong><%= @user.following_count %></strong>
+          <span>Following</span>
+        <% end %>
+      </div>
     </div>
   </div>
 
   <div class="thoughts-section">
-    <h2>My Game Thoughts</h2>
+    <h2>Game Thoughts</h2>
     <% if @game_thoughts.any? %>
       <div class="thoughts-list">
         <% @game_thoughts.each do |thought| %>
@@ -51,8 +81,10 @@
       </div>
     <% else %>
       <div class="no-thoughts">
-        <p>You haven't posted any game thoughts yet.</p>
-        <%= link_to "Start sharing your thoughts!", root_path, class: "cta-link" %>
+        <p><%= current_user == @user ? "You haven't" : "#{@user.display_name} hasn't" %> posted any game thoughts yet.</p>
+        <% if current_user == @user %>
+          <%= link_to "Start sharing your thoughts!", root_path, class: "cta-link" %>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -63,6 +95,53 @@
 </div>
 
 <style>
+/* Add new styles for follow functionality */
+.follow-actions {
+  margin: 15px 0;
+}
+
+.follow-form {
+  display: inline;
+}
+
+.follow-btn, .unfollow-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.follow-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.follow-btn:hover {
+  background-color: #0056b3;
+}
+
+.unfollow-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.unfollow-btn:hover {
+  background-color: #c82333;
+}
+
+.stat-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.stat-link:hover {
+  text-decoration: underline;
+}
+
+/* Existing styles remain the same */
 .profile-container {
   max-width: 800px;
   margin: 0 auto;
@@ -86,6 +165,7 @@
   display: flex;
   justify-content: center;
   gap: 40px;
+  flex-wrap: wrap;
 }
 
 .stat {

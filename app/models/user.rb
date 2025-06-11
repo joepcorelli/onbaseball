@@ -17,6 +17,15 @@ class User
   has_many :game_thoughts, dependent: :destroy
   has_many :votes, dependent: :destroy
 
+  # Follow relationships
+  has_many :active_follows, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy
+  has_many :passive_follows, class_name: 'Follow', foreign_key: 'followed_id', dependent: :destroy
+
+  # Users this user is following
+  has_many :following, through: :active_follows, source: :followed
+  # Users following this user
+  has_many :followers, through: :passive_follows, source: :follower
+
   # Validations for display name
   validates :display_name, presence: true, length: { minimum: 2, maximum: 30 }
   validates :display_name, uniqueness: { case_sensitive: false }
@@ -27,6 +36,28 @@ class User
 
   # Set default display name before validation on create
   before_validation :set_default_display_name, on: :create
+
+  # Helper methods for follow functionality
+  def follow(user)
+    return false if self == user || following?(user)
+    active_follows.create(followed: user)
+  end
+
+  def unfollow(user)
+    active_follows.where(followed: user).destroy_all
+  end
+
+  def following?(user)
+    following.include?(user)
+  end
+
+  def followers_count
+    passive_follows.count
+  end
+
+  def following_count
+    active_follows.count
+  end
 
   private
 

@@ -1,0 +1,145 @@
+<% content_for :title, "#{@user.display_name} - Followers - OnBaseball" %>
+
+<div class="follow-list-container">
+  <div class="follow-header">
+    <h1><%= @user.display_name %>'s Followers</h1>
+    <%= link_to "← Back to #{@user.display_name}'s Profile", user_path(@user), class: "back-link" %>
+  </div>
+
+  <% if @follower_users.any? %>
+    <div class="user-list">
+      <% @follower_users.each do |user| %>
+        <div class="user-card">
+          <div class="user-info">
+            <h3><%= link_to user.display_name, user_path(user), class: "user-link" %></h3>
+            <p class="user-stats">
+              <%= pluralize(user.game_thoughts.count, 'thought') %> • 
+              <%= pluralize(user.followers_count, 'follower') %>
+            </p>
+          </div>
+          
+          <% if user_signed_in? && current_user != user %>
+            <div class="follow-action">
+              <% if current_user.following?(user) %>
+                <%= form_with url: user_follow_path(user, current_user.active_follows.where(followed: user).first), 
+                              method: :delete, local: true, class: "follow-form" do |form| %>
+                  <%= form.submit "Unfollow", class: "unfollow-btn-small" %>
+                <% end %>
+              <% else %>
+                <%= form_with url: user_follows_path(user), method: :post, local: true, class: "follow-form" do |form| %>
+                  <%= form.submit "Follow", class: "follow-btn-small" %>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p><%= @user.display_name %> doesn't have any followers yet.</p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.follow-list-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.follow-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.follow-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.user-list {
+  space-y: 15px;
+}
+
+.user-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.user-info h3 {
+  margin: 0 0 5px 0;
+}
+
+.user-link {
+  color: #333;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.user-link:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.user-stats {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.follow-action .follow-form {
+  display: inline;
+}
+
+.follow-btn-small, .unfollow-btn-small {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.follow-btn-small {
+  background-color: #007bff;
+  color: white;
+}
+
+.follow-btn-small:hover {
+  background-color: #0056b3;
+}
+
+.unfollow-btn-small {
+  background-color: #dc3545;
+  color: white;
+}
+
+.unfollow-btn-small:hover {
+  background-color: #c82333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+</style>

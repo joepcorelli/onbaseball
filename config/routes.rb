@@ -21,6 +21,12 @@ Rails.application.routes.draw do
     collection do
       get :search
     end
+    # Add follow routes
+    member do
+      get :following
+      get :followers
+    end
+    resources :follows, only: [:create, :destroy]
   end
   
   # Health check route (if you have one)
