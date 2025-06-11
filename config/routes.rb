@@ -16,8 +16,12 @@ Rails.application.routes.draw do
   # Games detail pages
   resources :games, only: [:show]
   
-  # User profiles - using a different path to avoid conflict
-  resources :users, only: [:show], path: 'profiles'
+  # User profiles and search - using a different path to avoid conflict
+  resources :users, only: [:show], path: 'profiles' do
+    collection do
+      get :search
+    end
+  end
   
   # Health check route (if you have one)
   get "up" => "rails/health#show", as: :rails_health_check

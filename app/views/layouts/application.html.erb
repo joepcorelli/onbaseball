@@ -99,15 +99,35 @@
     <% end %>
 
     <nav style="padding: 20px; background-color: #f0f0f0; margin-bottom: 20px;">
-      <strong>OnBaseball</strong>
-      <% if user_signed_in? %>
-        | Welcome, <%= current_user.display_name %>! 
-        <%= link_to "My Profile", user_path(current_user), class: "profile-link" %>
-        <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete, confirm: "Are you sure?" } %>
-      <% else %>
-        | <%= link_to "Sign In", new_user_session_path %> 
-        | <%= link_to "Sign Up", new_user_registration_path %>
-      <% end %>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+          <strong>OnBaseball</strong>
+          <% if user_signed_in? %>
+            | Welcome, <%= current_user.display_name %>! 
+            <%= link_to "My Profile", user_path(current_user), class: "profile-link" %>
+          <% end %>
+        </div>
+        
+        <% if user_signed_in? %>
+          <div style="display: flex; align-items: center; gap: 15px; margin: 10px 0;">
+            <%= form_with url: search_users_path, method: :get, local: true, 
+                          style: "display: flex; align-items: center; gap: 10px;" do |form| %>
+              <%= form.text_field :q, placeholder: "Search users...", 
+                                  value: params[:q],
+                                  style: "padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; width: 200px;" %>
+              <%= form.submit "Search", 
+                              style: "padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;" %>
+            <% end %>
+            
+            <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete, confirm: "Are you sure?" } %>
+          </div>
+        <% else %>
+          <div>
+            <%= link_to "Sign In", new_user_session_path %> 
+            | <%= link_to "Sign Up", new_user_registration_path %>
+          </div>
+        <% end %>
+      </div>
     </nav>
 
     <main style="padding: 20px;">

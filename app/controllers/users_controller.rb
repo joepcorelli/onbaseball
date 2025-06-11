@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_action :authenticate_user!, only: [:search]
   before_action :set_user, only: [:show]
   
   def show
@@ -17,6 +18,23 @@ class UsersController < ApplicationController
     
     # Group thoughts by game for better display
     @thoughts_by_game = @user_thoughts.group_by(&:game_id)
+  end
+
+  def search
+    @query = params[:q]&.strip
+    @users = []
+    
+    if @query.present? && @query.length >= 2
+      # Search for users by display name (case insensitive)
+      # Exclude the current user from search results
+      @users = User.where(
+        :display_name => /#{Regexp.escape(@query)}/i
+      ).where(
+        :id.ne => current_user.id
+      ).limit(20).order_by(display_name: :asc)
+    elsif @query.present? && @query.length < 2
+      @error = "Search term must be at least 2 characters long."
+    end
   end
   
   private
