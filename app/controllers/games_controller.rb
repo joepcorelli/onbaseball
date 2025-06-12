@@ -17,7 +17,7 @@ class GamesController < ApplicationController
     # Get all thoughts for this game, ordered by creation time
     @all_game_thoughts = GameThought.where(game_id: @game_id, game_date: @game_date)
                                    .includes(:user)
-                                   .order_by(created_at: :asc)
+                                   .order_by(created_at: :desc)
     
     # Get current user's thoughts for this game (if logged in)
     if user_signed_in?
