@@ -49,6 +49,72 @@
         <% end %>
       </div>
     </div>
+
+    <!-- Favorite Team Section -->
+    <div class="favorite-team-section">
+      <% if current_user == @user %>
+        <% if @user.favorite_team.present? %>
+          <div class="favorite-team-info">
+            <h3>Favorite Team</h3>
+            <p class="team-name"><%= @user.favorite_team %></p>
+            <%= form_with url: user_path(@user), method: :patch, local: true, class: "favorite-team-form" do |form| %>
+              <%= form.hidden_field :favorite_team, value: nil %>
+              <%= form.submit "Remove Favorite Team", class: "remove-team-btn" %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="set-favorite-team">
+            <h3>Set Your Favorite Team</h3>
+            <%= form_with url: user_path(@user), method: :patch, local: true, class: "favorite-team-form" do |form| %>
+              <div class="team-select">
+                <%= form.select :favorite_team, 
+                  options_for_select([
+                    ['Arizona Diamondbacks', 'Arizona Diamondbacks'],
+                    ['Atlanta Braves', 'Atlanta Braves'],
+                    ['Baltimore Orioles', 'Baltimore Orioles'],
+                    ['Boston Red Sox', 'Boston Red Sox'],
+                    ['Chicago Cubs', 'Chicago Cubs'],
+                    ['Chicago White Sox', 'Chicago White Sox'],
+                    ['Cincinnati Reds', 'Cincinnati Reds'],
+                    ['Cleveland Guardians', 'Cleveland Guardians'],
+                    ['Colorado Rockies', 'Colorado Rockies'],
+                    ['Detroit Tigers', 'Detroit Tigers'],
+                    ['Houston Astros', 'Houston Astros'],
+                    ['Kansas City Royals', 'Kansas City Royals'],
+                    ['Los Angeles Angels', 'Los Angeles Angels'],
+                    ['Los Angeles Dodgers', 'Los Angeles Dodgers'],
+                    ['Miami Marlins', 'Miami Marlins'],
+                    ['Milwaukee Brewers', 'Milwaukee Brewers'],
+                    ['Minnesota Twins', 'Minnesota Twins'],
+                    ['New York Mets', 'New York Mets'],
+                    ['New York Yankees', 'New York Yankees'],
+                    ['Oakland Athletics', 'Oakland Athletics'],
+                    ['Philadelphia Phillies', 'Philadelphia Phillies'],
+                    ['Pittsburgh Pirates', 'Pittsburgh Pirates'],
+                    ['San Diego Padres', 'San Diego Padres'],
+                    ['San Francisco Giants', 'San Francisco Giants'],
+                    ['Seattle Mariners', 'Seattle Mariners'],
+                    ['St. Louis Cardinals', 'St. Louis Cardinals'],
+                    ['Tampa Bay Rays', 'Tampa Bay Rays'],
+                    ['Texas Rangers', 'Texas Rangers'],
+                    ['Toronto Blue Jays', 'Toronto Blue Jays'],
+                    ['Washington Nationals', 'Washington Nationals']
+                  ]), 
+                  { include_blank: 'Select a team' },
+                  { required: true }
+                %>
+                <%= form.submit "Set as Favorite", class: "set-team-btn" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% elsif @user.favorite_team.present? %>
+        <div class="favorite-team-info">
+          <h3>Favorite Team</h3>
+          <p class="team-name"><%= @user.favorite_team %></p>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <div class="thoughts-section">
@@ -290,5 +356,74 @@
     align-items: flex-start;
     gap: 5px;
   }
+}
+
+/* Favorite Team Styles */
+.favorite-team-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.favorite-team-section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.team-name {
+  font-size: 18px;
+  color: #2c5aa0;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.favorite-team-form {
+  margin-top: 15px;
+}
+
+.team-select {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.team-select select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.set-team-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.set-team-btn:hover {
+  background-color: #218838;
+}
+
+.remove-team-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.remove-team-btn:hover {
+  background-color: #c82333;
 }
 </style>

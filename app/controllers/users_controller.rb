@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!, only: [:search]
-  before_action :set_user, only: [:show, :following, :followers]
+  before_action :authenticate_user!, only: [:search, :update]
+  before_action :set_user, only: [:show, :following, :followers, :update]
+  before_action :authorize_user, only: [:update]
   
   def show
     @user = User.find(params[:id])
@@ -18,6 +19,14 @@ class UsersController < ApplicationController
     
     # Group thoughts by game for better display
     @thoughts_by_game = @user_thoughts.group_by(&:game_id)
+  end
+
+  def update
+    if @user.update(user_params)
+      redirect_to user_path(@user), notice: 'Profile updated successfully.'
+    else
+      redirect_to user_path(@user), alert: 'Unable to update profile.'
+    end
   end
 
   def following
@@ -51,5 +60,15 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   rescue Mongoid::Errors::DocumentNotFound
     redirect_to root_path, alert: 'User not found.'
+  end
+
+  def authorize_user
+    unless current_user == @user
+      redirect_to user_path(@user), alert: 'You are not authorized to perform this action.'
+    end
+  end
+
+  def user_params
+    params.require(:user).permit(:favorite_team)
   end
 end

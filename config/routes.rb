@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   resources :games, only: [:show]
   
   # User profiles and search - using a different path to avoid conflict
-  resources :users, only: [:show], path: 'profiles' do
+  resources :users, only: [:show, :update], path: 'profiles' do
     collection do
       get :search
     end

@@ -12,6 +12,7 @@ class User
 
   # Add display name field
   field :display_name, type: String
+  field :favorite_team, type: String
 
   # Game thoughts and votes
   has_many :game_thoughts, dependent: :destroy
@@ -27,6 +28,44 @@ class User
   validates :display_name, format: { 
     with: /\A[a-zA-Z0-9_\-\s]+\z/, 
     message: "can only contain letters, numbers, underscores, hyphens, and spaces" 
+  }
+
+  # Validation for favorite team
+  validates :favorite_team, inclusion: { 
+    in: %w[
+      Arizona\ Diamondbacks
+      Atlanta\ Braves
+      Baltimore\ Orioles
+      Boston\ Red\ Sox
+      Chicago\ Cubs
+      Chicago\ White\ Sox
+      Cincinnati\ Reds
+      Cleveland\ Guardians
+      Colorado\ Rockies
+      Detroit\ Tigers
+      Houston\ Astros
+      Kansas\ City\ Royals
+      Los\ Angeles\ Angels
+      Los\ Angeles\ Dodgers
+      Miami\ Marlins
+      Milwaukee\ Brewers
+      Minnesota\ Twins
+      New\ York\ Mets
+      New\ York\ Yankees
+      Oakland\ Athletics
+      Philadelphia\ Phillies
+      Pittsburgh\ Pirates
+      San\ Diego\ Padres
+      San\ Francisco\ Giants
+      Seattle\ Mariners
+      St.\ Louis\ Cardinals
+      Tampa\ Bay\ Rays
+      Texas\ Rangers
+      Toronto\ Blue\ Jays
+      Washington\ Nationals
+    ],
+    allow_nil: true,
+    message: "must be a valid MLB team name"
   }
 
   # Set default display name before validation on create
