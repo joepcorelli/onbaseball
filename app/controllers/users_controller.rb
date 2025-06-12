@@ -22,10 +22,21 @@ class UsersController < ApplicationController
   end
 
   def update
-    if @user.update(user_params)
-      redirect_to user_path(@user), notice: 'Profile updated successfully.'
+    if params[:user][:favorite_team].blank?
+      # Handle removal of favorite team
+      @user.favorite_team = nil
+      if @user.save
+        redirect_to user_path(@user), notice: 'Favorite team removed successfully.'
+      else
+        redirect_to user_path(@user), alert: 'Unable to remove favorite team.'
+      end
     else
-      redirect_to user_path(@user), alert: 'Unable to update profile.'
+      # Handle setting a new favorite team
+      if @user.update(user_params)
+        redirect_to user_path(@user), notice: 'Profile updated successfully.'
+      else
+        redirect_to user_path(@user), alert: 'Unable to update profile.'
+      end
     end
   end
 
