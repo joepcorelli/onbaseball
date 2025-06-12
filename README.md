@@ -23,6 +23,7 @@ A Ruby on Rails application for baseball fans to log and share their thoughts on
 - User profiles with game thought history and statistics
 - User search functionality by display name
 - Detailed game pages showing community discussion
+- Follow other users, and see who's following who
 
 ### User Experience
 - Responsive design that works on mobile and desktop
