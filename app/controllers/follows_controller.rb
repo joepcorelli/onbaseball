@@ -5,7 +5,7 @@ class FollowsController < ApplicationController
   def create
     if current_user.follow(@user)
       # Create notification for the followed user
-      @user.notifications.create!(
+      @user.received_notifications.create!(
         type: 'follow',
         actor: current_user,
         message: "#{current_user.display_name} started following you"

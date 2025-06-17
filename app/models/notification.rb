@@ -6,8 +6,8 @@ class Notification
   field :read, type: Boolean, default: false
   field :message, type: String
 
-  belongs_to :recipient, class_name: 'User', inverse_of: :notifications
-  belongs_to :actor, class_name: 'User', optional: true
+  belongs_to :recipient, class_name: 'User', inverse_of: :received_notifications
+  belongs_to :actor, class_name: 'User', inverse_of: :sent_notifications, optional: true
 
   # Create indexes for performance
   index({ recipient_id: 1, created_at: -1 })
