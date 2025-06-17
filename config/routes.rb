@@ -31,4 +31,17 @@ Rails.application.routes.draw do
   
   # Health check route (if you have one)
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # User search
+  get 'search/users', to: 'users#search'
+  
+  # Notifications
+  resources :notifications, only: [:index] do
+    member do
+      post :mark_as_read
+    end
+  end
+  
+  # PWA manifest
+  # get 'pwa/manifest', to: 'pwa#manifest', as: :pwa_manifest
 end

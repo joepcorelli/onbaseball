@@ -22,6 +22,9 @@ class User
   has_many :active_follows, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy, inverse_of: :follower
   has_many :passive_follows, class_name: 'Follow', foreign_key: 'followed_id', dependent: :destroy, inverse_of: :followed
 
+  # Notifications
+  has_many :notifications, foreign_key: 'recipient_id', dependent: :destroy
+
   # Validations for display name
   validates :display_name, presence: true, length: { minimum: 2, maximum: 30 }
   validates :display_name, uniqueness: { case_sensitive: false }
@@ -101,6 +104,15 @@ class User
 
   def following_count
     active_follows.count
+  end
+
+  # Notification methods
+  def unread_notifications_count
+    notifications.unread.count
+  end
+
+  def mark_notifications_as_read
+    notifications.unread.update_all(read: true)
   end
 
   private
