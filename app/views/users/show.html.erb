@@ -131,6 +131,28 @@
               </h3>
               <span class="thought-date"><%= thought.game_date.strftime("%B %d, %Y") %></span>
             </div>
+            <% game = @game_statuses[[thought.game_id.to_s, thought.game_date.to_date]] %>
+            <% if game %>
+              <div class="game-details" style="margin-bottom: 8px;">
+                <div class="time-status">
+                  <% if game['status']['statusCode'] == 'F' %>
+                    <span class="final">Final:
+                      <%= game.dig('teams', 'away', 'score') || 0 %>-<%= game.dig('teams', 'home', 'score') || 0 %>
+                    </span>
+                  <% elsif game['status']['statusCode'] == 'I' %>
+                    <span class="live">
+                      <%= game.dig('linescore', 'inningHalf')&.capitalize %>
+                      <%= game.dig('linescore', 'currentInningOrdinal') %>:
+                      <%= game.dig('teams', 'away', 'score') || 0 %>-<%= game.dig('teams', 'home', 'score') || 0 %>
+                    </span>
+                  <% else %>
+                    <span class="upcoming">
+                      <%= DateTime.parse(game['gameDate']).in_time_zone.strftime('%l:%M %p') %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
             <div class="thought-content">
               <p><%= thought.content %></p>
             </div>

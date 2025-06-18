@@ -19,6 +19,18 @@ class UsersController < ApplicationController
     
     # Group thoughts by game for better display
     @thoughts_by_game = @user_thoughts.group_by(&:game_id)
+
+    # --- New: Fetch game status for each thought's game ---
+    require 'date'
+    @game_statuses = {}
+    game_dates = @game_thoughts.map(&:game_date).uniq
+    game_dates.each do |date|
+      games = MlbApiService.games_for_date(date)
+      games.each do |game|
+        @game_statuses[[game['gamePk'].to_s, date.to_date]] = game
+      end
+    end
+    # --- End new ---
   end
 
   def update
