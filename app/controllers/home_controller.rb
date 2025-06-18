@@ -5,8 +5,9 @@ class HomeController < ApplicationController
     @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     games = MlbApiService.games_for_date(@selected_date)
     
-    # Sort games according to your requirements
-    @games = sort_games_by_priority(games)
+    favorite_team = user_signed_in? ? current_user.favorite_team : nil
+    # Sort games according to your requirements, prioritizing favorite team if present
+    @games = sort_games_by_priority(games, favorite_team)
     
     if user_signed_in?
       # Get user's existing game thoughts for the selected date
@@ -17,7 +18,15 @@ class HomeController < ApplicationController
   
   private
   
-  def sort_games_by_priority(games)
+  def sort_games_by_priority(games, favorite_team = nil)
+    # If favorite_team is present, find its game
+    favorite_game = nil
+    if favorite_team.present?
+      favorite_game = games.find do |game|
+        [game.dig('teams', 'home', 'team', 'name'), game.dig('teams', 'away', 'team', 'name')].include?(favorite_team)
+      end
+    end
+
     # Separate games by status
     in_progress = []
     upcoming = []
@@ -56,6 +65,13 @@ class HomeController < ApplicationController
     end
     
     # Combine in the desired order: in_progress, upcoming, finished
-    in_progress + upcoming + finished
+    ordered_games = in_progress + upcoming + finished
+
+    # If favorite_game is present, move it to the top
+    if favorite_game
+      ordered_games.delete(favorite_game)
+      ordered_games.unshift(favorite_game)
+    end
+    ordered_games
   end
 end
