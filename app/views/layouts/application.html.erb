@@ -120,7 +120,9 @@
     <nav style="padding: 20px; background-color: #f0f0f0; margin-bottom: 20px;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
         <div>
-          <strong>OnBaseball</strong>
+          <%= link_to root_path(date: Date.current), style: "text-decoration: none; color: inherit;" do %>
+            <strong>OnBaseball</strong>
+          <% end %>
           <% if user_signed_in? %>
             | Welcome, <%= current_user.display_name %>! 
             <%= link_to "My Profile", user_path(current_user), class: "profile-link" %>
