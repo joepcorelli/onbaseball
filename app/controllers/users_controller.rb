@@ -23,11 +23,33 @@ class UsersController < ApplicationController
     # --- New: Fetch game status for each thought's game ---
     require 'date'
     @game_statuses = {}
+    @inning_transitions_by_game = {}
+    @game_start_by_game = {}
+    @game_end_by_game = {}
     game_dates = @game_thoughts.map(&:game_date).uniq
     game_dates.each do |date|
       games = MlbApiService.games_for_date(date)
       games.each do |game|
-        @game_statuses[[game['gamePk'].to_s, date.to_date]] = game
+        key = [game['gamePk'].to_s, date.to_date]
+        @game_statuses[key] = game
+        # Get start/end/inning transitions for this game
+        @game_start_by_game[key] = DateTime.parse(game['gameDate']).in_time_zone rescue nil
+        @game_end_by_game[key] = nil
+        if game['status']['statusCode'] == 'F' && game['linescore'] && game['linescore']['endTime']
+          @game_end_by_game[key] = DateTime.parse(game['linescore']['endTime']).in_time_zone rescue nil
+        end
+        if @game_end_by_game[key].nil?
+          begin
+            pbp = MlbApiService.play_by_play(game['gamePk'])
+            if pbp && pbp['liveData'] && pbp['liveData']['plays'] && pbp['liveData']['plays']['allPlays']&.any?
+              last_play = pbp['liveData']['plays']['allPlays'].last
+              @game_end_by_game[key] = Time.parse(last_play['about']['endTime']) rescue nil
+            end
+          rescue
+            @game_end_by_game[key] = nil
+          end
+        end
+        @inning_transitions_by_game[key] = MlbApiService.inning_transitions(game['gamePk'])
       end
     end
     # --- End new ---

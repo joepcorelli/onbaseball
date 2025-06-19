@@ -130,6 +130,14 @@
                 <% end %>
               </h3>
               <span class="thought-date"><%= thought.game_date.strftime("%B %d, %Y") %></span>
+              <% key = [thought.game_id.to_s, thought.game_date.to_date] %>
+              <span class="context-label" style="margin-left: 10px; color: #888; font-size: 13px;">
+                <%= thought.context_label(
+                      game_start: @game_start_by_game[key],
+                      game_end: @game_end_by_game[key],
+                      inning_transitions: @inning_transitions_by_game[key] || []
+                    ) %>
+              </span>
             </div>
             <% game = @game_statuses[[thought.game_id.to_s, thought.game_date.to_date]] %>
             <% if game %>

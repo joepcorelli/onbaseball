@@ -44,4 +44,30 @@ class GameThought
     self.dislikes_count = votes.where(vote_type: 'dislike').count
     save!
   end
+  
+  # Returns the context label for this thought
+  # Params:
+  # - game_start: Time (scheduled start)
+  # - game_end: Time (actual end, or nil if ongoing)
+  # - inning_transitions: array of {label, start, end}
+  def context_label(game_start:, game_end:, inning_transitions: [])
+    t = created_at
+    return 'Before Game' if t < game_start
+    if game_end && t > game_end
+      return 'After Game'
+    end
+    # Find the inning segment this thought falls into
+    inning_transitions.each_with_index do |seg, idx|
+      seg_start = seg[:start]
+      seg_end = seg[:end] || (inning_transitions[idx+1] && inning_transitions[idx+1][:start]) || game_end
+      if seg_start && seg_end && t >= seg_start && t < seg_end
+        return "Posted: #{seg[:label]}"
+      end
+    end
+    # If not found, but after last segment and before game_end
+    if inning_transitions.last && t >= inning_transitions.last[:start] && (!game_end || t <= game_end)
+      return "Posted: #{inning_transitions.last[:label]}"
+    end
+    'During Game'
+  end
 end

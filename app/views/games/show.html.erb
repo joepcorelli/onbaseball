@@ -75,6 +75,9 @@
             <div class="thought-card user-thought">
               <div class="thought-header">
                 <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+                <span class="context-label" style="margin-left: 10px; color: #888; font-size: 13px;">
+                  <%= thought.context_label(game_start: @game_start, game_end: @game_end, inning_transitions: @inning_transitions) %>
+                </span>
                 <div class="thought-actions">
                   <%= button_to "Delete", game_thought_path(thought), 
                                method: :delete, 
@@ -105,6 +108,9 @@
                 <%= link_to "@#{thought.user.display_name}", user_path(thought.user) %>
               </span>
               <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+              <span class="context-label" style="margin-left: 10px; color: #888; font-size: 13px;">
+                <%= thought.context_label(game_start: @game_start, game_end: @game_end, inning_transitions: @inning_transitions) %>
+              </span>
               
               <% if user_signed_in? %>
                 <div class="voting-buttons">

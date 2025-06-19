@@ -30,5 +30,26 @@ class GamesController < ApplicationController
     
     # Prepare new thought form
     @new_game_thought = GameThought.new if user_signed_in?
+
+    # --- New: Fetch inning transitions and game start/end times ---
+    @inning_transitions = []
+    @game_start = DateTime.parse(@game['gameDate']).in_time_zone rescue nil
+    @game_end = nil
+    if @game['status']['statusCode'] == 'F' && @game['linescore'] && @game['linescore']['endTime']
+      @game_end = DateTime.parse(@game['linescore']['endTime']).in_time_zone rescue nil
+    end
+    # Fallback: If no endTime, use last play's time
+    if @game_end.nil?
+      begin
+        pbp = MlbApiService.play_by_play(@game_id)
+        if pbp && pbp['liveData'] && pbp['liveData']['plays'] && pbp['liveData']['plays']['allPlays']&.any?
+          last_play = pbp['liveData']['plays']['allPlays'].last
+          @game_end = Time.parse(last_play['about']['endTime']) rescue nil
+        end
+      rescue
+        @game_end = nil
+      end
+    end
+    @inning_transitions = MlbApiService.inning_transitions(@game_id)
   end
 end
