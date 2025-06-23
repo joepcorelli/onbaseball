@@ -76,9 +76,11 @@
               <div class="thought-header">
                 <span class="timestamp">
                   <%= thought.created_at.strftime('%l:%M %p') %>
-                  <span class="context-badge context-<%= thought.game_context %>">
-                    <%= thought.context_display %>
-                  <span>
+                  <% if thought.has_context? %>
+                    <span class="context-badge context-<%= thought.game_context %>">
+                      <%= thought.context_display %>
+                    <span>
+                  <% end %>
                 <span>
                 <div class="thought-actions">
                   <%= button_to "Delete", game_thought_path(thought), 

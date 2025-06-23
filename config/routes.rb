@@ -34,6 +34,8 @@ Rails.application.routes.draw do
 
   # User search
   get 'search/users', to: 'users#search'
+
+  get 'admin/context_stats', to: 'admin#context_stats'
   
   # Notifications
   resources :notifications, only: [:index] do
