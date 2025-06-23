@@ -74,7 +74,12 @@
           <% @user_thoughts.each do |thought| %>
             <div class="thought-card user-thought">
               <div class="thought-header">
-                <span class="timestamp"><%= thought.created_at.strftime('%l:%M %p') %></span>
+                <span class="timestamp">
+                  <%= thought.created_at.strftime('%l:%M %p') %>
+                  <span class="context-badge context-<%= thought.game_context %>">
+                    <%= thought.context_display %>
+                  <span>
+                <span>
                 <div class="thought-actions">
                   <%= button_to "Delete", game_thought_path(thought), 
                                method: :delete, 
@@ -169,6 +174,31 @@
 .game-info p {
   margin: 5px 0;
   color: #666;
+}
+
+.context-badge {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: 8px;
+    font-weight: normal;
+  }
+  
+.context-before {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.context-during {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.context-after {
+  background-color: #fff3e0;
+  color: #f57c00;
 }
 
 .live-status {

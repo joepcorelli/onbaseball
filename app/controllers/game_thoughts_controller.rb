@@ -3,8 +3,21 @@ class GameThoughtsController < ApplicationController
   before_action :set_game_thought, only: [:show, :destroy, :like, :dislike]
   
   def create
+    # Get current game data to determine context
+    game_data = fetch_current_game_data(game_thought_params[:game_id], game_thought_params[:game_date])
+
     @game_thought = current_user.game_thoughts.build(game_thought_params)
     
+    # Add game context information
+    if game_data
+      context_info = MlbApiService.determine_game_context(game_data)
+      @game_thought.assign_attributes(context_info)
+    else
+      # Fallback if we can't get game data
+      @game_thought.game_context = 'before'
+      @game_thought.game_status_code = 'UNKNOWN'
+    end
+
     if @game_thought.save
       redirect_to root_path(date: @game_thought.game_date), 
                   notice: 'Your thought was successfully saved!'
@@ -35,6 +48,14 @@ class GameThoughtsController < ApplicationController
   end
   
   private
+
+  def fetch_current_game_data(game_id, game_date)
+    games = MlbApiService.games_for_date(Date.parse(game_date.to_s))
+    games.find { |game| game['gamePk'].to_s == game_id.to_s }
+  rescue => e
+    Rails.logger.error "Failed to fetch game data: #{e.message}"
+    nil
+  end
   
   def set_game_thought
     @game_thought = GameThought.find(params[:id])
