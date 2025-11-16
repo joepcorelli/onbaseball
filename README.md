@@ -27,6 +27,12 @@ A Ruby on Rails application for baseball fans to log and share their thoughts on
 - Follow/unfollow system with follower/following counts
 - Real-time notification system for user interactions
 
+### Game Context Tracking
+- Automatic detection of when thoughts are posted (before/during/after game)
+- Visual context badges showing game timing (e.g., "Top 3rd", "Before Game")
+- Inning and score tracking for thoughts posted during live games
+- Context displays on both game detail and user profile pages
+
 ### User Experience
 - Responsive design that works on mobile and desktop
 - Professional navigation with search and profile access
@@ -52,7 +58,7 @@ A Ruby on Rails application for baseball fans to log and share their thoughts on
 
 ### Models
 - **User**: Authentication, profiles, follow relationships, notifications
-- **GameThought**: User thoughts on games with voting system
+- **GameThought**: User thoughts on games with voting system, game context tracking (before/during/after), inning details, and timestamps
 - **Vote**: Like/dislike system for game thoughts
 - **Follow**: User follow relationships
 - **Notification**: Real-time notification system
@@ -66,7 +72,7 @@ A Ruby on Rails application for baseball fans to log and share their thoughts on
 - **FollowsController**: Follow/unfollow functionality
 
 ### Services
-- **MlbApiService**: Real-time MLB game data fetching
+- **MlbApiService**: Real-time MLB game data fetching and game context determination (before/during/after game status)
 
 ### Key Features for Developers
 - Real-time MLB game data fetching via HTTParty
@@ -78,6 +84,11 @@ A Ruby on Rails application for baseball fans to log and share their thoughts on
 - Follow system with bidirectional relationships
 - Notification system for user interactions
 - PWA support for mobile app-like experience
+
+### JavaScript Features
+- Stimulus.js controllers for interactive components
+- Real-time game status updates
+- Dynamic form handling
 
 ## Setup Instructions
 
